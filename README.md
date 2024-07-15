@@ -38,7 +38,7 @@
 Поддерживается установка с помощью [менеджера пакетов](https://getcomposer.org).
 
 ```
-$ composer require ufee/yandex dev-master
+$ composer require ufee/yandex-disk dev-master
 ```
 
 ## Тесты
