@@ -38,13 +38,7 @@
 Поддерживается установка с помощью [менеджера пакетов](https://getcomposer.org).
 
 ```
-$ composer require arhitector/yandex dev-master
-```
-
-Или 
-
-```
-$ php composer.phar require arhitector/yandex dev-master
+$ composer require ufee/yandex dev-master
 ```
 
 ## Тесты
