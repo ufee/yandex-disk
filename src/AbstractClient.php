@@ -15,10 +15,9 @@ namespace Arhitector\Yandex;
 
 use Arhitector\Yandex\Client\Exception\ServiceException;
 use Arhitector\Yandex\Client\HttpClient;
-use Arhitector\Yandex\Client\Stream\Factory;
 use Http\Client\Common\Plugin\RedirectPlugin;
 use Http\Client\Common\PluginClient;
-use Http\Message\MessageFactory\DiactorosMessageFactory;
+use GuzzleHttp\Psr7\HttpFactory;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Laminas\Diactoros\Uri;
@@ -83,7 +82,7 @@ abstract class AbstractClient
 	public function __construct()
 	{
 		$this->uri = new Uri(static::API_BASEPATH);
-		$this->client = new PluginClient(new HttpClient(new DiactorosMessageFactory, new Factory, [
+		$this->client = new PluginClient(new HttpClient(new HttpFactory, [
 			CURLOPT_SSL_VERIFYPEER => false
 		]), [
 			new RedirectPlugin

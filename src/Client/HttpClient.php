@@ -20,8 +20,8 @@ use Http\Client\Exception;
 use Http\Client\Exception\RequestException;
 use Http\Client\HttpClient as HttpClientInterface;
 use Http\Client\HttpAsyncClient as HttpAsyncClientInterface;
-use Http\Message\MessageFactory;
-use Http\Message\StreamFactory;
+use GuzzleHttp\Psr7\HttpFactory;
+use GuzzleHttp\Psr7\Utils;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -44,18 +44,11 @@ class HttpClient implements HttpClientInterface, HttpAsyncClientInterface
 	protected $options;
 
 	/**
-	 * PSR-7 message factory
-	 *
-	 * @var MessageFactory
-	 */
-	protected $messageFactory;
-
-	/**
 	 * PSR-7 stream factory
 	 *
-	 * @var StreamFactory
+	 * @var HttpFactory
 	 */
-	protected $streamFactory;
+	protected $httpFactory;
 
 	/**
 	 * cURL synchronous requests handle
@@ -75,17 +68,15 @@ class HttpClient implements HttpClientInterface, HttpAsyncClientInterface
 	/**
 	 * Create new client
 	 *
-	 * @param MessageFactory $messageFactory HTTP Message factory
-	 * @param StreamFactory  $streamFactory  HTTP Stream factory
-	 * @param array          $options        cURL options (see http://php.net/curl_setopt)
+	 * @param HttpFactory  $httpFactory    HTTP factory
+	 * @param array        $options        cURL options (see http://php.net/curl_setopt)
 	 *
 	 * @throws \LogicException If some factory not provided and php-http/discovery not installed
 	 */
-	public function __construct(MessageFactory $messageFactory, StreamFactory $streamFactory, array $options = [])
+	public function __construct(HttpFactory $httpFactory, array $options = [])
 	{
 		$this->handle = curl_init();
-		$this->messageFactory = $messageFactory;
-		$this->streamFactory = $streamFactory;
+		$this->httpFactory = $httpFactory;
 		$this->options = $options;
 	}
 
@@ -359,17 +350,15 @@ class HttpClient implements HttpClientInterface, HttpAsyncClientInterface
 	 */
 	protected function createResponseBuilder()
 	{
-		try
-		{
-			$body = $this->streamFactory->createStream(fopen('php://temp', 'w+'));
+		try {
+			$resource = fopen('php://temp', 'w+');
+			$body = Utils::streamFor($resource);
 		}
-		catch (\InvalidArgumentException $e)
-		{
+		catch (\InvalidArgumentException $e) {
 			throw new \RuntimeException('Can not create "php://temp" stream.');
 		}
-
-		$response = $this->messageFactory->createResponse(200, null, [], $body);
-
+		//$response = $this->httpFactory->createResponse(200, '', [], $body);
+		$response = $this->httpFactory->createResponse(200)->withBody($body);
 		return new ResponseBuilder($response);
 	}
 
